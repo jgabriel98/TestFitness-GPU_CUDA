@@ -349,10 +349,9 @@ __global__ void CalcFitness(float * SpNiche,float * LocEnv,float * Fitness){
 		}
 	  
   		// Return fitness value
-  		Fitness[cellIdx] = LocFitness;
+  		Fitness[ (espIndex*NCELLS) + cellIdx ] = LocFitness;
   		//printf("LocFit-%.8f  CELL- %d\t Especie- %d\n",LocFitness,cellIdx,espIndex );
-}
-        
+  }        
 }
 
 extern "C" void calc_fitness(float *SpNiche,float *LocEnv,float *Fitness){
