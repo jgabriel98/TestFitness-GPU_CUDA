@@ -9,16 +9,18 @@
 #include <math.h>
 #include <cuda_runtime.h>
 
+//variaveis externas correspondentes as dos código em pascal ( testfitness.dpr ), porém não estão sendo utlizadas no momento,
+//Em seus lugares são usadas as MACROS definidas logo em seguida.
 extern "C" int32_t nCells;
 extern "C" int32_t nVars;
 //using namespace std;
 
 // from https://rosettacode.org/wiki/Sutherland-Hodgman_polygon_clipping#C
-#define nSteps 10
+#define nSteps 10 //precisão do poligono / número de pontos no poligono
 #define NENV 4
 #define NESPECIES 1000
 #define NCELLS 50
-#define CONST_WARPS 10 //Numero arbitrario do multiplo das warps 
+#define CONST_WARPS 10 //Numero arbitrario do multiplo das warps  ( corresponde a quantidade de warps em cada bloco)
 
 
 #define erfA 0.278393      // Abramowitz e Stegun approximation to erf
@@ -348,7 +350,7 @@ __global__ void CalcFitness(float * SpNiche,float * LocEnv,float * Fitness){
       }
 		}
 	  
-  		// Return fitness value
+  		// store fitness value of 'espIndex' especie  for 'cellIdx' cell
   		Fitness[ (espIndex*NCELLS) + cellIdx ] = LocFitness;
   		//printf("LocFit-%.8f  CELL- %d\t Especie- %d\n",LocFitness,cellIdx,espIndex );
   }        
@@ -394,7 +396,7 @@ extern "C" void calc_fitness(float *SpNiche,float *LocEnv,float *Fitness){
 
 
   qnt_thr = device_prop.warpSize * CONST_WARPS;
-	qnt_blocos = (NESPECIES+qnt_thr-1)/qnt_thr;
+  qnt_blocos = (NESPECIES+qnt_thr-1)/qnt_thr;
 	
   printf("\tCalling device: CalcFitness\n");
 	CalcFitness<<<qnt_blocos,qnt_thr>>>(d_spNiche, d_locEnv, d_fitness);
